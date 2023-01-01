@@ -1,0 +1,17 @@
+{
+  "name": "createpdf",
+  "version": "1.0.0",
+  "description": "create pdf in nodejs",
+  "main": "createPDF.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Len",
+  "license": "ISC",
+  "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "pdf-lib": "^1.17.1"
+  }
+}
