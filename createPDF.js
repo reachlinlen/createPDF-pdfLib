@@ -79,7 +79,7 @@ async function createPDF() {
   const miscDetailsValue = ['12/12/2022', '001', 'Erode', 'Salem', 'Company Vehicle', 'TN37D2233']
   invoiceMiscDetails(page, miscDetailsValue);
   billedItemsTable(page, customFont);
-  // taxSeparation(page);
+  taxSeparation(page);
   writeFileSync("blank.pdf", await PDFdoc.save());
 }
 
@@ -464,14 +464,69 @@ function billedItemsTable(page, customFont) {
         });
       }
     });
+    page.drawLine({
+      start: {x: TOP_LEFT.x, y: TOP_LEFT.y - PRIMARY_DETAILS_HT - 15 - (10 * MIN_ITEMS_ROW)},
+      end: {x: BOTTOM_RIGHT.x, y: TOP_LEFT.y - PRIMARY_DETAILS_HT - 15 - (10 * MIN_ITEMS_ROW)},
+      ...LINE_COLOR
+    });
   }
 }
 
 function taxSeparation(page) {
-  page.drawLine({
-    start: {x: BOTTOM_LEFT.x , y: (HEIGHT / 4) * 3 + 10},
-    end: {x: BOTTOM_RIGHT.x , y: (HEIGHT / 4) * 3 + 10},
-    ...LINE_COLOR
+  const TAX_SEPARATION = [
+    {
+      title: 'Tax (%)',
+      length: 60
+    },
+    {
+      title: 'CGST',
+      length: 60
+    },
+    {
+      title: 'SGST',
+      length: 60
+    },
+    {
+      title: 'Total',
+      length: 60
+    },
+  ];
+  const TAX_RATES = [ '5%', '12%', '18%'];
+  var posX = TOP_LEFT.x;
+  const posY = TOP_LEFT.y - PRIMARY_DETAILS_HT - 15 - (10 * MIN_ITEMS_ROW);
+  TAX_SEPARATION.forEach((taxHeader, index) => {
+    page.drawText(taxHeader.title, {
+      x: posX + (taxHeader.length / 2),
+      y: posY - 10,
+      lineHeight: 10,
+      ...SMALL_TEXT
+    });
+    posX += taxHeader.length;
+    // page.drawLine({
+    //   start: {x: posX, y: posY},
+    //   end: {x: posX, y: posY - 15},
+    //   ...LINE_COLOR
+    // });
+  });
+  TAX_RATES.forEach((tax, index) => {
+    page.drawText(tax, {
+      x: TOP_LEFT.x + (TAX_SEPARATION[index].length / 2),
+      y: posY - 10 - (20 * (index + 1)),
+      lineHeight: 10,
+      ...SMALL_TEXT
+    })
+  })
+  page.drawText('Total tax value', {
+    x: TOP_LEFT.x + 370.5,
+    y: posY - 10,
+    lineHeight: 10,
+    ...SMALL_TEXT
+  });
+  page.drawText('Total amt value', {
+    x: TOP_LEFT.x + 450.5,
+    y: posY - 10,
+    lineHeight: 10,
+    ...SMALL_TEXT
   });
 }
 
