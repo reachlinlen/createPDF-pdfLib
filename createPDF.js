@@ -1,5 +1,3 @@
-// import fontkit from "@pdf-lib/fontkit"
-// import path from "path"
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const { readFile, readFileSync, writeFileSync } = require("fs");
 const path = require("path");
@@ -12,6 +10,8 @@ const HEIGHT = PDF_HEIGHT - 40
 const PRIMARY_DETAILS_HT = 200
 const MIN_ITEMS_ROW = 28
 const MAX_ITEMS_ROW_PAGE_01 = 58
+const TEXT_DISPLACEMENT = 4;
+const TAX_WIDTH = 88
 
 const BOTTOM_LEFT = {
   x: 20,
@@ -79,7 +79,7 @@ async function createPDF() {
   const miscDetailsValue = ['12/12/2022', '001', 'Erode', 'Salem', 'Company Vehicle', 'TN37D2233']
   invoiceMiscDetails(page, miscDetailsValue);
   billedItemsTable(page, customFont);
-  taxSeparation(page);
+  taxSeparation(page, customFont);
   writeFileSync("blank.pdf", await PDFdoc.save());
 }
 
@@ -266,13 +266,13 @@ function billedItemsTable(page, customFont) {
     },
     {
       title: 'Tax Rs',
-      pos: 40,
-      length: 80
+      pos: 44,
+      length: TAX_WIDTH
     },
     {
       title: 'Amount',
-      pos: 50,
-      length: 100
+      pos: 44,
+      length: TAX_WIDTH
     },
   ];
   // ADD BILL ITEMS
@@ -282,7 +282,7 @@ function billedItemsTable(page, customFont) {
       hsn: '12345678',
       qty: '5012500',
       unit: 'crate',
-      rate: '9999999',
+      rate: '999999.99',
       gst: '15',
       tax: '9999999.99',
       amt: '99999999.99'
@@ -295,17 +295,16 @@ function billedItemsTable(page, customFont) {
       rate: '16',
       gst: '15',
       tax: '4505.55',
-      amt: '22500'
+      amt: '22500.00'
     }
   ]
   var textSpillRows = 0;
   var totalBillRows = 0;
   billData.forEach((bill, index) => {
-    const posX = TOP_LEFT.x;
+    var posX = TOP_LEFT.x;
     // Table position - Header height - bottom buffer - height of every row
     const posY = BILL_TABLE_Y - 15 - 4 - (10 * (index + textSpillRows + 1));
     var tabColHeaderIndex = 0;
-    var newPosX = posX + TABLE_COL_HEADER[tabColHeaderIndex].length + 4;
     totalBillRows += textSpillRows + 1
     textSpillRows = 0;
     page.drawText(String(index + 1), {
@@ -330,58 +329,62 @@ function billedItemsTable(page, customFont) {
         }
       }
     }
+    posX += TABLE_COL_HEADER[tabColHeaderIndex].length + TEXT_DISPLACEMENT;
     page.drawText(newBillItem, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       font: customFont,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.hsn, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.qty, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.unit, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.rate, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.gst, {
-      x: newPosX,
+      x: posX,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
+    posX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.tax, {
-      x: newPosX,
+      x: posX + TABLE_COL_HEADER[++tabColHeaderIndex].length - 
+        customFont.widthOfTextAtSize(bill.tax, 9) - TEXT_DISPLACEMENT - 8,
       y: posY,
       lineHeight: 10,
       ...TEXT
     });
-    newPosX += TABLE_COL_HEADER[++tabColHeaderIndex].length;
     page.drawText(bill.amt, {
-      x: newPosX,
+      // posX + earlier array length + current index length (to right align) - 
+      //  text width - text displacement - extra displacement
+      x: posX + TABLE_COL_HEADER[tabColHeaderIndex].length + TABLE_COL_HEADER[++tabColHeaderIndex].length - 
+        customFont.widthOfTextAtSize(bill.amt, 9) - TEXT_DISPLACEMENT - 6,
       y: posY,
       lineHeight: 10,
       ...TEXT
@@ -413,7 +416,7 @@ function billedItemsTable(page, customFont) {
   }
 }
 
-function taxSeparation(page) {
+function taxSeparation(page, customFont) {
   const TAX_SEPARATION = [
     {
       title: 'Tax (%)',
@@ -435,6 +438,7 @@ function taxSeparation(page) {
   const TAX_RATES = [ '5%', '12%', '18%'];
   var posX = TOP_LEFT.x;
   const posY = TOP_LEFT.y - PRIMARY_DETAILS_HT - 15 - (10 * MIN_ITEMS_ROW);
+  var taxPosition = posY - 25;
   TAX_SEPARATION.forEach((taxHeader, index) => {
     page.drawText(taxHeader.title, {
       x: posX + (taxHeader.length / 2),
@@ -457,41 +461,48 @@ function taxSeparation(page) {
       ...SMALL_TEXT
     })
   })
-  page.drawText('Total tax value', {
-    x: TOP_LEFT.x + 370.5,
+  page.drawText('11,99,99,999.00', {
+    x: TOP_LEFT.x + 370.5 + (2 * TAX_WIDTH) - customFont.widthOfTextAtSize('11,99,99,999.00', 10),
     y: posY - 10,
     lineHeight: 10,
-    ...SMALL_TEXT
+    ...TEXT
+  });
+  //
+  page.drawText('Total tax', {
+    x: TOP_LEFT.x + 370.5 + TAX_WIDTH - customFont.widthOfTextAtSize('Total tax', 10),
+    y: taxPosition,
+    lineHeight: 10,
+    ...TEXT
   });
   page.drawText('11,99,99,999.00', {
-    x: TOP_LEFT.x + 450.5,
-    y: posY - 10,
+    x: TOP_LEFT.x + 370.5 + (2 * TAX_WIDTH) - customFont.widthOfTextAtSize('11,99,99,999.00', 10),
+    y: taxPosition,
     lineHeight: 10,
-    ...SMALL_TEXT
+    ...TEXT
   });
   // Round off
   page.drawText('Rounded off', {
-    x: TOP_LEFT.x + 370.5,
-    y: posY - 25,
+    x: TOP_LEFT.x + 370.5 + TAX_WIDTH - customFont.widthOfTextAtSize('Rounded off', 10),
+    y: taxPosition - 20,
     lineHeight: 10,
-    ...SMALL_TEXT
+    ...TEXT
   });
   page.drawText('0.32', {
-    x: TOP_LEFT.x + 450.5,
-    y: posY - 25,
+    x: TOP_LEFT.x + 370.5 + (2 * TAX_WIDTH) - customFont.widthOfTextAtSize('0.32', 10),
+    y: taxPosition - 20,
     lineHeight: 10,
-    ...SMALL_TEXT
+    ...TEXT
   });
   // Net Amount
   page.drawText('Net Amount', {
     x: TOP_LEFT.x + 370.5,
-    y: posY - 45,
+    y: taxPosition - 50,
     lineHeight: 10,
     ...BOLD_TEXT
   });
   page.drawText('11,99,99,999.00', {
-    x: TOP_LEFT.x + 450.5,
-    y: posY - 45,
+    x: TOP_LEFT.x + 370.5 + (2 * TAX_WIDTH) - customFont.widthOfTextAtSize('11,99,99,999.00', 12) - 8,
+    y: taxPosition - 50,
     lineHeight: 10,
     ...BOLD_TEXT
   });
