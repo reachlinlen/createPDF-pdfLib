@@ -184,42 +184,7 @@ function invoiceMiscDetails(page, miscDetailsValue) {
       ...TEXT
     });
   });
-  // page.drawText('Invoice Date', {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 10,
-  //   y: firstLine.y,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
-  // page.drawText(`\t\t: ${invDate}`, {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 60,
-  //   y: firstLine.y,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
-  // page.drawText('Invoice No', {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 10,
-  //   y: firstLine.y - 15,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
-  // page.drawText(`\t\t: ${invNum}`, {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 60,
-  //   y: firstLine.y - 15,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
-  // page.drawText('Vehicle No', {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 10,
-  //   y: firstLine.y - 15,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
-  // page.drawText(`\t\t: ${invNum}`, {
-  //   x: BOTTOM_LEFT.x + ((WIDTH / 3) * 2) + 60,
-  //   y: firstLine.y - 15,
-  //   lineHeight: 10,
-  //   ...TEXT
-  // });
+
 }
 
 function constructPage(page) {
@@ -421,30 +386,6 @@ function billedItemsTable(page, customFont) {
       lineHeight: 10,
       ...TEXT
     });
-    // page.drawText(billData[index].item, {
-    //   x: pointX + header.pos,
-    //   y: BILL_TABLE_Y - (15 * (index + 1)),
-    //   lineHeight: 10,
-    //   ...LINE_COLOR
-    // });
-    // page.drawText(billData[index].hsn, {
-    //   x: pointX + header.pos,
-    //   y: BILL_TABLE_Y - (15 * (index + 1)),
-    //   lineHeight: 10,
-    //   ...LINE_COLOR
-    // });
-    // page.drawText(billData[index].qty, {
-    //   x: pointX + header.pos,
-    //   y: BILL_TABLE_Y - (15 * (index + 1)),
-    //   lineHeight: 10,
-    //   ...LINE_COLOR
-    // });
-    // page.drawText(billData[index].unit, {
-    //   x: pointX + header.pos,
-    //   y: BILL_TABLE_Y - (15 * (index + 1)),
-    //   lineHeight: 10,
-    //   ...LINE_COLOR
-    // });
   })
   if (MIN_ITEMS_ROW >= totalBillRows) {
     var pointX = TOP_LEFT.x;
@@ -522,11 +463,37 @@ function taxSeparation(page) {
     lineHeight: 10,
     ...SMALL_TEXT
   });
-  page.drawText('Total amt value', {
+  page.drawText('11,99,99,999.00', {
     x: TOP_LEFT.x + 450.5,
     y: posY - 10,
     lineHeight: 10,
     ...SMALL_TEXT
+  });
+  // Round off
+  page.drawText('Rounded off', {
+    x: TOP_LEFT.x + 370.5,
+    y: posY - 25,
+    lineHeight: 10,
+    ...SMALL_TEXT
+  });
+  page.drawText('0.32', {
+    x: TOP_LEFT.x + 450.5,
+    y: posY - 25,
+    lineHeight: 10,
+    ...SMALL_TEXT
+  });
+  // Net Amount
+  page.drawText('Net Amount', {
+    x: TOP_LEFT.x + 370.5,
+    y: posY - 45,
+    lineHeight: 10,
+    ...BOLD_TEXT
+  });
+  page.drawText('11,99,99,999.00', {
+    x: TOP_LEFT.x + 450.5,
+    y: posY - 45,
+    lineHeight: 10,
+    ...BOLD_TEXT
   });
 }
 
