@@ -1,3 +1,9 @@
+// import {
+//   PDFDocument,
+//   StandardFonts,
+//   rgb,
+// } from 'https://cdn.skypack.dev/pdf-lib@^1.11.1?dts';
+
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const { readFile, readFileSync, writeFileSync } = require("fs");
 const path = require("path");
@@ -68,14 +74,13 @@ async function createPDF() {
   const page = PDFdoc.addPage();
   const custName = 'Karthik';
   const custAddress = '';
-  // page.embed(StandardFonts.Helvetica);
   constructPage(page);
   const additionalDetailsValue = {
     'GST No': '33ACKPL8536A',
     Mobile: '9942142562'
   }
   addHomeCompanyDetails(page, additionalDetailsValue);
-  addToDetails(page, 'Salthi masala Works private linmited', true);
+  addToDetails(page, 'Salthi masala Works private linmited', false);
   const miscDetailsValue = ['12/12/2022', '001', 'Erode', 'Salem', 'Company Vehicle', 'TN37D2233']
   invoiceMiscDetails(page, miscDetailsValue);
   billedItemsTable(page, customFont);
